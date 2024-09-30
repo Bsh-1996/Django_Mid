@@ -12,6 +12,13 @@ class UserRegisterView(View):
     form_class = UserRegistrationForm
     template_name = 'account/register.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            messages.warning(request,'you are registered and cant register again now')
+            return redirect('home:home')
+        else:
+            return super().dispatch(request, *args, **kwargs)
+
     def get(self, request):
         form = self.form_class()
         return render(request, self.template_name , {'form': form})
@@ -28,6 +35,14 @@ class UserRegisterView(View):
 class UserLoginView(View):
     form_class = UserLoginForm
     template_name = 'account/login.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            messages.warning(request,'you are logged in and cant login again now')
+            return redirect('home:home')
+        else:
+            return super().dispatch(request, *args, **kwargs)
+        
 
     def get(self, request):
         form = self.form_class
