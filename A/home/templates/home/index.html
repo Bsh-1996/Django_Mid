@@ -2,8 +2,11 @@
 
 {% block content %}
 
-<!DOCTYPE html>
-<h1>home page</h1>
+<div class="card"></div>
 
+    {% for post in posts %}
+        <a href="{% url 'home:post_detail' post.id post.slug %}" class="card-body">{{ post.body| truncatewords:8 }}</a>
+    {% endfor %}
+</div>
 
 {% endblock %}
