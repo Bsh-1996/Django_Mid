@@ -1,9 +1,12 @@
+from typing import Any
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.views import View
 from . models import Post
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from . forms import PostCreateUpdateForm
+from django.utils.text import slugify
 # Create your views here.
 
 
@@ -29,3 +32,55 @@ class PostDeleteView(LoginRequiredMixin, View):
         else:
             messages.error(request, 'you cant delete this post', 'danger')
         return redirect('home:home')
+    
+
+
+class PostUpdateView(LoginRequiredMixin, View):
+    form_class = PostCreateUpdateForm
+
+    #this is for sometimes to onec conncet to DB
+    def setup(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None:
+        self.post_instance = Post.objects.get(id=kwargs['post_id'])
+        return super().setup(request, *args, **kwargs)
+
+    def dispatch(self, request, *args, **kwargs):
+        post = self.post_instance
+        if not post.user.id == request.user.id:
+            messages.error(request, 'you cant update this post', 'danger')
+            return redirect('home:home')
+        return super().dispatch(request, *args, **kwargs)
+
+
+    def get(self, request, post_id):
+       post = self.post_instance
+       form = self.form_class(instance= post)    
+       return render(request, 'home/update.html', {'form': form}) 
+
+    def post(self, request, *args, **kwargs):
+        post = self.post_instance
+        form = self.form_class(request.POST, instance=post)
+        if form.is_valid():
+            new_post = form.save(commit=False)
+            new_post.slug = slugify(form.cleaned_data['body'][:30])
+            new_post.save()
+            messages.success(request, 'yoo updated this post', 'success')
+            return redirect('home:post_detail', post.id, post.slug)
+        
+
+class PostCreateView(LoginRequiredMixin, View):
+    form_class = PostCreateUpdateForm
+
+    
+    def get(self, request, *args, **kwargs):
+        form = self.form_class
+        return render(request, 'home/create.html', {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            new_post = form.save(commit=False)
+            new_post.slug = slugify(form.cleaned_data['body'][:30])
+            new_post.user = request.user
+            new_post.save()
+            messages.success(request, 'yoo created this post', 'success')
+            return redirect('home:post_detail', new_post.id, new_post.slug)
