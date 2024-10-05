@@ -10,6 +10,9 @@ class Post(models.Model):
     slug = models.SlugField()
     created = models.DateTimeField(auto_now_add= True)
     updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('-created', 'body')
     
 
     def __str__(self):
