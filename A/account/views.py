@@ -10,6 +10,8 @@ from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.urls import reverse_lazy
+from . models import Relations
+from django.contrib import messages
 # Create your views here.
 
 
@@ -81,9 +83,15 @@ class UserLogoutView(LoginRequiredMixin, View):
 
 class UserProfileView(LoginRequiredMixin, View):
     def get(self, request, user_id):
+        is_following = False
         user = get_object_or_404(User, id = user_id)
         posts = user.posts.all()
-        return render(request, 'account/profile.html', {'user': user, 'posts': posts})
+        relation = Relations.objects.filter(from_user = request.user, to_user = user)
+        if relation.exists():
+            is_following = True
+        return render(request, 'account/profile.html', {'user': user, 'posts': posts, 'is_following': is_following})
+    
+
 
 
 
@@ -106,6 +114,34 @@ class UserPasswordResetConfirmView(PasswordResetConfirmView):
 
 class UserPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'account/password_reset_complete.html'
+
+
+
+class UserFollowView(LoginRequiredMixin, View):
+    def get(self, request, user_id):
+        user = User.objects.get(id = user_id) # the person who i want to follow
+        relation = Relations.objects.filter(from_user = request.user, to_user = user)
+        if relation.exists():
+            messages.error(request,'you are already following this user', 'danger')
+        else:
+            Relations.objects.create(from_user = request.user, to_user = user)
+            messages.success(request, 'you are now following this user', 'success')
+        return redirect('account:user_profile', user.id)
+            
+
+
+
+class UserUnfollowView(LoginRequiredMixin, View):
+    def get(self, request, user_id):
+        user = User.objects.get(id = user_id)
+        relation = Relations.objects.filter(from_user = request.user, to_user = user)
+        if relation.exists():
+            relation.delete()
+            messages.success(request, 'you are no longer following this user', 'success')
+        else:
+            messages.error('you are not following this user', 'danger')
+        return redirect('account:user_profile', user.id)
+    
 
 
 
