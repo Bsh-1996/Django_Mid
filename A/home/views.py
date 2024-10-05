@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from . forms import PostCreateUpdateForm
 from django.utils.text import slugify
+
 # Create your views here.
 
 
@@ -84,3 +85,6 @@ class PostCreateView(LoginRequiredMixin, View):
             new_post.save()
             messages.success(request, 'yoo created this post', 'success')
             return redirect('home:post_detail', new_post.id, new_post.slug)
+
+
+
