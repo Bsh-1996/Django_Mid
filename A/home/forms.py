@@ -17,3 +17,8 @@ class CommentCreatreForm(forms.ModelForm):
             'body': forms.TextInput(attrs= {'class': 'form-control'})
         }
         
+class ReplyCommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment 
+        fields = ('body',)
+        
