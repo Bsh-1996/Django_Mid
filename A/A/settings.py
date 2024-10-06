@@ -140,3 +140,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'behrouzsharifi7@gmail.com'
 EMAIL_HOST_PASSWORD = ''
 DEFAULT_FROM_EMAIL = 'behrouzsharifi7@gmail.com'
+
+
+
+
+LOGIN_URL = '/account/login/'  # Make sure this matches your login URL

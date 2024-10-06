@@ -1,5 +1,5 @@
 from django import forms
-from . models import Post
+from . models import Post, Comment
 
 
 class PostCreateUpdateForm(forms.ModelForm):
@@ -9,3 +9,11 @@ class PostCreateUpdateForm(forms.ModelForm):
 
 
 
+class CommentCreatreForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('body',)
+        widgets = {
+            'body': forms.TextInput(attrs= {'class': 'form-control'})
+        }
+        
