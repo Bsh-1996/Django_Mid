@@ -2,6 +2,15 @@
 
 {% block content %}
 
+
+<form action="" method="get">
+    
+    {{ form }}<br/>
+    <input type="submit" value="Search">
+
+</form>
+
+
 <div class="card">
 
     {% for post in posts %}
@@ -10,3 +19,6 @@
 </div>
 
 {% endblock %}
+
+
+
